@@ -1,0 +1,13 @@
+export default function Logo() {
+  return (
+    <div>
+      <h1 className="text-4xl font-bold text-blue-600">
+        DevTrack AI 🚀
+      </h1>
+
+      <p className="text-gray-500 mt-2">
+        AI-powered Developer Productivity Platform
+      </p>
+    </div>
+  );
+}
