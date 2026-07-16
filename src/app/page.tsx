@@ -1,9 +1,14 @@
+import Navbar from "../components/layout/Navbar";
 import Logo from "../components/common/Logo";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen items-center justify-center">
-      <Logo />
-    </main>
+    <>
+      <Navbar />
+
+      <main className="flex min-h-[80vh] items-center justify-center">
+        <Logo />
+      </main>
+    </>
   );
 }
