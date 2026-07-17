@@ -6,11 +6,21 @@ export default function Navbar() {
       </h1>
 
       <div className="flex gap-6">
-  <a href="#" className="hover:text-blue-600">Dashboard</a>
-  <a href="#" className="hover:text-blue-600">Projects</a>
-  <a href="#" className="hover:text-blue-600">Tasks</a>
-  <a href="#" className="hover:text-blue-600">Analytics</a>
-  <a href="#" className="hover:text-blue-600">Profile</a>
+        <a href="#" className="transition-colors duration-200 hover:text-blue-500">
+          Dashboard
+        </a>
+        <a href="#" className="transition-colors duration-200 hover:text-blue-500">
+          Projects
+        </a>
+        <a href="#" className="transition-colors duration-200 hover:text-blue-500">
+          Tasks
+        </a>
+        <a href="#" className="transition-colors duration-200 hover:text-blue-500">
+          Analytics
+        </a>
+        <a href="#" className="transition-colors duration-200 hover:text-blue-500">
+          Profile
+        </a>
       </div>
     </nav>
   );
