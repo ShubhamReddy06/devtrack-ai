@@ -10,7 +10,7 @@ export default function Logo() {
       </p>
 
       <p className="text-sm text-gray-400 mt-4">
-        Built with fun by Shubham Reddy ⚡️
+        Built with fun ⚡️
       </p>
     </div>
   );
