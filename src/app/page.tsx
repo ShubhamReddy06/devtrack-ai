@@ -1,19 +1,22 @@
-import Navbar from "../components/layout/Navbar";
-import Sidebar from "../components/layout/Sidebar";
+import DashboardLayout from "../components/layout/DashboardLayout";
 import Logo from "../components/common/Logo";
 
 export default function Home() {
   return (
-    <>
-      <Navbar />
+    <DashboardLayout>
+      <div className="flex min-h-[80vh] flex-col items-center justify-center">
+        <Logo />
 
-      <div className="flex">
-        <Sidebar />
+        <p className="mt-4 text-lg text-gray-600">
+          Welcome back, Shubham 👋
+        </p>
 
-        <main className="flex-1 flex items-center justify-center">
-          <Logo />
-        </main>
+        <button
+          className="mt-6 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+        >
+          Create Project
+        </button>
       </div>
-    </>
+    </DashboardLayout>
   );
 }
