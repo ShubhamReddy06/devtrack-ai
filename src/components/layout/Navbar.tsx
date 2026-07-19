@@ -1,26 +1,40 @@
+import Link from "next/link";
+
 export default function Navbar() {
   return (
-    <nav className="flex items-center justify-between px-8 py-4 border-b">
-      <h1 className="text-2xl font-bold text-blue-600">
+    <nav className="flex items-center justify-between bg-gray-900 text-white shadow-lg px-8 py-4 border-b border-gray-800">
+      <h1 className="text-2xl font-bold text-blue-500">
         DevTrack AI 🚀
       </h1>
 
-      <div className="flex gap-6">
-        <a href="#" className="transition-colors duration-200 hover:text-blue-500">
+      <div className="flex items-center gap-6">
+        <Link href="/" className="hover:text-blue-500 transition-colors">
+          Home
+        </Link>
+
+        <Link href="/dashboard" className="hover:text-blue-500 transition-colors">
           Dashboard
-        </a>
-        <a href="#" className="transition-colors duration-200 hover:text-blue-500">
+        </Link>
+
+        <Link href="/projects" className="hover:text-blue-500 transition-colors">
           Projects
-        </a>
-        <a href="#" className="transition-colors duration-200 hover:text-blue-500">
+        </Link>
+
+        <Link href="/tasks" className="hover:text-blue-500 transition-colors">
           Tasks
-        </a>
-        <a href="#" className="transition-colors duration-200 hover:text-blue-500">
+        </Link>
+
+        <Link href="/analytics" className="hover:text-blue-500 transition-colors">
           Analytics
-        </a>
-        <a href="#" className="transition-colors duration-200 hover:text-blue-500">
+        </Link>
+
+        <Link href="/settings" className="hover:text-blue-500 transition-colors">
+          Settings
+        </Link>
+
+        <Link href="/profile" className="hover:text-blue-500 transition-colors">
           Profile
-        </a>
+        </Link>
       </div>
     </nav>
   );
