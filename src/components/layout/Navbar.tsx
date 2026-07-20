@@ -2,39 +2,37 @@ import Link from "next/link";
 
 export default function Navbar() {
   return (
-    <nav className="flex items-center justify-between bg-gray-900 text-white shadow-lg px-8 py-4 border-b border-gray-800">
-      <h1 className="text-2xl font-bold text-blue-500">
-        DevTrack AI 🚀
-      </h1>
+    <nav className="bg-slate-900 text-white px-8 py-4 border-b border-slate-700">
+      <div className="flex items-center justify-between">
 
-      <div className="flex items-center gap-6">
-        <Link href="/" className="hover:text-blue-500 transition-colors">
-          Home
+        {/* Logo */}
+        <Link
+          href="/"
+          className="text-4xl font-bold text-blue-500"
+        >
+          DevTrack AI 🚀
         </Link>
 
-        <Link href="/dashboard" className="hover:text-blue-500 transition-colors">
-          Dashboard
-        </Link>
+        {/* Search Bar */}
+        <div className="flex-1 mx-10">
+          <input
+            type="text"
+            placeholder="Search..."
+            className="w-full max-w-md px-4 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
 
-        <Link href="/projects" className="hover:text-blue-500 transition-colors">
-          Projects
-        </Link>
+        {/* Navigation Links */}
+        <div className="flex items-center gap-8 text-lg">
+          <Link href="/">Home</Link>
+          <Link href="/dashboard">Dashboard</Link>
+          <Link href="/projects">Projects</Link>
+          <Link href="/tasks">Tasks</Link>
+          <Link href="/analytics">Analytics</Link>
+          <Link href="/settings">Settings</Link>
+          <Link href="/profile">Profile</Link>
+        </div>
 
-        <Link href="/tasks" className="hover:text-blue-500 transition-colors">
-          Tasks
-        </Link>
-
-        <Link href="/analytics" className="hover:text-blue-500 transition-colors">
-          Analytics
-        </Link>
-
-        <Link href="/settings" className="hover:text-blue-500 transition-colors">
-          Settings
-        </Link>
-
-        <Link href="/profile" className="hover:text-blue-500 transition-colors">
-          Profile
-        </Link>
       </div>
     </nav>
   );

@@ -1,57 +1,34 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 
 export default function Sidebar() {
+  const [open, setOpen] = useState(false);
+
   return (
-    <aside className="w-64 min-h-screen bg-gray-900 text-white shadow-lg border-r border-gray-800">
-      <div className="p-6">
-        <h2 className="text-xl font-bold text-blue-500 mb-8">
-          Navigation
-        </h2>
+    <>
+      {/* Hover Area */}
+      <div
+        className="fixed left-0 top-20 h-[calc(100vh-5rem)] w-3 z-40"
+        onMouseEnter={() => setOpen(true)}
+      />
 
-        <div className="flex flex-col gap-3">
-          <Link
-            href="/dashboard"
-            className="px-4 py-3 rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            🏠 Dashboard
-          </Link>
-
-          <Link
-            href="/projects"
-            className="px-4 py-3 rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            📁 Projects
-          </Link>
-
-          <Link
-            href="/tasks"
-            className="px-4 py-3 rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            ✅ Tasks
-          </Link>
-
-          <Link
-            href="/analytics"
-            className="px-4 py-3 rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            📊 Analytics
-          </Link>
-
-          <Link
-            href="/settings"
-            className="px-4 py-3 rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            ⚙️ Settings
-          </Link>
-
-          <Link
-            href="/profile"
-            className="px-4 py-3 rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            👤 Profile
-          </Link>
-        </div>
-      </div>
-    </aside>
+      <aside
+        onMouseLeave={() => setOpen(false)}
+        className={`fixed top-20 left-0 w-64 h-[calc(100vh-5rem)] bg-slate-900 border-r border-slate-700 transform transition-transform duration-300 z-40 ${
+          open ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <nav className="flex flex-col gap-6 p-6 text-white">
+          <Link href="/dashboard">🏠 Dashboard</Link>
+          <Link href="/projects">📁 Projects</Link>
+          <Link href="/tasks">✅ Tasks</Link>
+          <Link href="/analytics">📊 Analytics</Link>
+          <Link href="/settings">⚙️ Settings</Link>
+          <Link href="/profile">👤 Profile</Link>
+        </nav>
+      </aside>
+    </>
   );
 }
