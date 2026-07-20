@@ -1,5 +1,7 @@
 import DashboardLayout from "../components/layout/DashboardLayout";
 import Logo from "../components/common/Logo";
+import Button from "../components/ui/Button";
+
 
 export default function Home() {
   return (
