@@ -1,18 +1,20 @@
+import { ReactNode } from "react";
+
 interface ButtonProps {
-  text: string;
-  color: string;
+  children: ReactNode;
+  onClick?: () => void;
 }
 
-export default function Button({ text, color }: ButtonProps) {
+export default function Button({
+  children,
+  onClick,
+}: ButtonProps) {
   return (
     <button
-      className={`text-white px-4 py-2 rounded-lg transition ${
-        color === "red"
-          ? "bg-red-600 hover:bg-red-700"
-          : "bg-blue-600 hover:bg-blue-700"
-      }`}
+      onClick={onClick}
+      className="w-full rounded-xl bg-cyan-500 py-3 font-semibold text-white hover:bg-cyan-600 transition duration-300"
     >
-      {text}
+      {children}
     </button>
   );
 }
