@@ -6,6 +6,7 @@ import Link from "next/link";
 import Logo from "@/components/common/Logo";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import DepthText from "@/components/ui/DepthText";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -39,7 +40,25 @@ export default function ForgotPasswordPage() {
       <div className="absolute -top-20 -left-20 h-96 w-96 rounded-full bg-blue-500 opacity-20 blur-[150px]" />
       <div className="absolute bottom-0 right-0 h-[500px] w-[500px] rounded-full bg-purple-600 opacity-20 blur-[180px]" />
 
-      <div className="flex min-h-screen items-center justify-center px-4">
+      {/* Background DepthText Watermark */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] select-none z-0">
+        <DepthText
+          text="DevTrack"
+          layers={45}
+          depth={3.5}
+          faceColor="#3b82f6"
+          depthColor="#1d4ed8"
+          fontSize="clamp(6rem, 25vw, 16rem)"
+          fontWeight={950}
+          tilt={12}
+          pointerTracking={true}
+          autoOrbit={true}
+          orbitSpeed={0.08}
+          shadow={false}
+        />
+      </div>
+
+      <div className="flex min-h-screen items-center justify-center px-4 relative z-10">
         <div className="w-full max-w-md rounded-2xl border border-white/10 bg-slate-900/70 p-8 shadow-2xl backdrop-blur-xl">
 
           {/* Logo */}
