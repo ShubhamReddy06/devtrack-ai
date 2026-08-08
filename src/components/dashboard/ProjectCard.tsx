@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Pencil, Trash2 } from "lucide-react";
 
 interface ProjectCardProps {
   id: number | string;
@@ -6,6 +7,8 @@ interface ProjectCardProps {
   description: string;
   tasks: number;
   status: "Planning" | "In Progress" | "Completed";
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
 export default function ProjectCard({
@@ -14,6 +17,8 @@ export default function ProjectCard({
   description,
   tasks,
   status,
+  onEdit,
+  onDelete,
 }: ProjectCardProps) {
   const getStatusStyle = () => {
     switch (status) {
@@ -31,7 +36,42 @@ export default function ProjectCard({
   return (
     <Link href={`/projects/${id}`} className="block">
       <div className="rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-blue-500/50 dark:hover:border-blue-500/50 cursor-pointer">
-        <h2 className="text-xl font-bold text-gray-800 dark:text-white transition-colors duration-300">{title}</h2>
+        <div className="flex items-start justify-between gap-4">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-white transition-colors duration-300">{title}</h2>
+          
+          {(onEdit || onDelete) && (
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {onEdit && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onEdit(String(id));
+                  }}
+                  className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-all cursor-pointer"
+                  title="Edit project"
+                >
+                  <Pencil size={13} />
+                </button>
+              )}
+              {onDelete && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onDelete(String(id));
+                  }}
+                  className="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all cursor-pointer"
+                  title="Delete project"
+                >
+                  <Trash2 size={13} />
+                </button>
+              )}
+            </div>
+          )}
+        </div>
 
         <p className="mt-2 text-gray-600 dark:text-slate-300 text-sm line-clamp-2 transition-colors duration-300">{description}</p>
 

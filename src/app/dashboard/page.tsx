@@ -1,11 +1,12 @@
 "use client";
 
-import Button from "@/components/ui/Button";
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import RecentActivity from "@/components/dashboard/RecentActivity";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { useProjects } from "@/components/providers/ProjectProvider";
 
 export default function DashboardPage() {
+  const { projects } = useProjects();
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",
     day: "numeric",
@@ -31,6 +32,18 @@ export default function DashboardPage() {
     },
   ];
 
+  // Calculate dynamic metrics
+  const projectCount = projects.length;
+  let totalTasks = 0;
+  let completedTasks = 0;
+
+  projects.forEach(project => {
+    totalTasks += project.tasks.length;
+    completedTasks += project.tasks.filter(t => t.status === "Done").length;
+  });
+
+  const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
   return (
     <DashboardLayout>
       <div className="space-y-8 p-6 transition-colors duration-300">
@@ -55,21 +68,22 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
           <DashboardCard
             title="📁 Projects"
-            value={12}
-            description="+3 this week"
+            value={projectCount}
+            description="Active projects"
           />
 
           <DashboardCard
             title="✅ Tasks"
-            value={48}
-            description="+8 completed"
+            value={totalTasks}
+            description={`${completedTasks} completed`}
           />
 
           <DashboardCard
             title="🎉 Completed"
-            value={36}
-            description="75% completion"
+            value={`${completionRate}%`}
+            description="Average completion"
           />
+
 
           <DashboardCard
             title="🤖 AI Reports"

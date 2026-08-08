@@ -1,38 +1,20 @@
 "use client";
 
-import React, { Suspense } from "react";
+import React, { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Button from "@/components/ui/Button";
 import ProjectCard from "@/components/dashboard/ProjectCard";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-
-const projects = [
-  {
-    id: 1,
-    title: "DevTrack AI",
-    description: "AI Productivity Platform",
-    tasks: 12,
-    status: "In Progress" as const,
-  },
-  {
-    id: 2,
-    title: "Portfolio Website",
-    description: "Personal Portfolio",
-    tasks: 8,
-    status: "Completed" as const,
-  },
-  {
-    id: 3,
-    title: "Weather App",
-    description: "Weather Forecast Project",
-    tasks: 5,
-    status: "Planning" as const,
-  },
-];
+import ProjectModal from "@/components/projects/ProjectModal";
+import { useProjects, Project } from "@/components/providers/ProjectProvider";
 
 function ProjectsContent() {
+  const { projects, addProject, editProject, deleteProject } = useProjects();
   const searchParams = useSearchParams();
   const searchVal = searchParams.get("search") || "";
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeEditProject, setActiveEditProject] = useState<Project | undefined>(undefined);
 
   const filteredProjects = projects.filter((project) => {
     if (!searchVal) return true;
@@ -41,6 +23,28 @@ function ProjectsContent() {
       project.description.toLowerCase().includes(searchVal.toLowerCase())
     );
   });
+
+  const handleCreateOrUpdate = (title: string, description: string, status: "Planning" | "In Progress" | "Completed") => {
+    if (activeEditProject) {
+      editProject(activeEditProject.id, { title, description, status });
+    } else {
+      addProject(title, description, status);
+    }
+  };
+
+  const handleEditClick = (id: string) => {
+    const proj = projects.find(p => p.id === id);
+    if (proj) {
+      setActiveEditProject(proj);
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleDeleteClick = (id: string) => {
+    if (confirm("Are you sure you want to delete this project and all its tasks?")) {
+      deleteProject(id);
+    }
+  };
 
   return (
     <div className="min-h-[80vh] p-4 transition-colors duration-300">
@@ -57,7 +61,7 @@ function ProjectsContent() {
         </div>
 
         <div className="w-40">
-          <Button>
+          <Button onClick={() => { setActiveEditProject(undefined); setIsModalOpen(true); }}>
             + Create Project
           </Button>
         </div>
@@ -82,12 +86,22 @@ function ProjectsContent() {
               id={project.id}
               title={project.title}
               description={project.description}
-              tasks={project.tasks}
+              tasks={project.tasks.length}
               status={project.status}
+              onEdit={handleEditClick}
+              onDelete={handleDeleteClick}
             />
           ))}
         </div>
       )}
+
+      {/* Project Modal */}
+      <ProjectModal
+        isOpen={isModalOpen}
+        onClose={() => { setIsModalOpen(false); setActiveEditProject(undefined); }}
+        onSubmit={handleCreateOrUpdate}
+        project={activeEditProject}
+      />
     </div>
   );
 }
