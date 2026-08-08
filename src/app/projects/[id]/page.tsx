@@ -5,51 +5,9 @@ import Link from "next/link";
 import { ArrowLeft, Plus, CheckCircle, Clock, ListTodo } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import Button from "@/components/ui/Button";
-import TaskCard, { Task } from "@/components/projects/TaskCard";
-
-// Mock data representing database resources
-interface ProjectData {
-  id: number;
-  title: string;
-  description: string;
-  status: "Planning" | "In Progress" | "Completed";
-  tasks: Task[];
-}
-
-const projectsData: Record<string, ProjectData> = {
-  "1": {
-    id: 1,
-    title: "DevTrack AI",
-    description: "AI Productivity Platform designed to help developers track goals, manage sprints, and generate intelligent productivity reports.",
-    status: "In Progress",
-    tasks: [
-      { id: "101", title: "Build Projects Page", description: "Design a responsive grid layout of project cards with status badges and create action buttons.", status: "Done", priority: "High", dueDate: "2026-08-07" },
-      { id: "102", title: "Project Details Page", description: "Add dynamic routing under /projects/[id] to display detailed view and task boards.", status: "In Progress", priority: "High", dueDate: "2026-08-08" },
-      { id: "103", title: "Create Task Component", description: "Develop a reusable TaskCard component incorporating priority tags, calendar due dates and delete controls.", status: "Done", priority: "Medium", dueDate: "2026-08-07" },
-      { id: "104", title: "Frontend CRUD Operations", description: "Implement interactive modal forms for creating, editing, and deleting projects and tasks using local React state.", status: "To Do", priority: "Medium", dueDate: "2026-08-09" },
-      { id: "105", title: "Integrate Express Backend", description: "Replace mock JSON payloads with axios async calls calling the REST database server.", status: "To Do", priority: "High", dueDate: "2026-08-11" },
-    ]
-  },
-  "2": {
-    id: 2,
-    title: "Portfolio Website",
-    description: "Personal developer portfolio to showcase skills, experience, and projects to potential employers.",
-    status: "Completed",
-    tasks: [
-      { id: "201", title: "Design mockup", description: "Create visual layout in Figma for desktop and mobile views.", status: "Done", priority: "High", dueDate: "2026-08-01" },
-      { id: "202", title: "Setup Next.js site", description: "Initialize framework structure, Tailwind config, and basic navigation.", status: "Done", priority: "Medium", dueDate: "2026-08-03" },
-    ]
-  },
-  "3": {
-    id: 3,
-    title: "Weather App",
-    description: "A location-based weather tracking system retrieving metrics from OpenWeather API.",
-    status: "Planning",
-    tasks: [
-      { id: "301", title: "Research APIs", description: "Compare accuracy, latency, and free-tier access rules of various weather intelligence endpoints.", status: "To Do", priority: "Low", dueDate: "2026-08-15" }
-    ]
-  }
-};
+import TaskCard from "@/components/projects/TaskCard";
+import TaskModal from "@/components/projects/TaskModal";
+import { useProjects } from "@/components/providers/ProjectProvider";
 
 interface ProjectDetailsPageProps {
   params: Promise<{ id: string }>;
@@ -57,9 +15,10 @@ interface ProjectDetailsPageProps {
 
 export default function ProjectDetailsPage({ params }: ProjectDetailsPageProps) {
   const { id } = use(params);
-  const project = projectsData[id];
+  const { projects, addTask, deleteTask, updateTaskStatus } = useProjects();
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
-  const [taskList, setTaskList] = useState<Task[]>(project?.tasks || []);
+  const project = projects.find(p => p.id === id);
 
   if (!project) {
     return (
@@ -75,8 +34,24 @@ export default function ProjectDetailsPage({ params }: ProjectDetailsPageProps) 
     );
   }
 
+  const handleCreateTask = (title: string, description: string, priority: "Low" | "Medium" | "High", dueDate: string) => {
+    addTask(project.id, {
+      title,
+      description,
+      priority,
+      dueDate,
+      status: "To Do"
+    });
+  };
+
   const handleDeleteTask = (taskId: string | number) => {
-    setTaskList(prev => prev.filter(t => t.id !== taskId));
+    if (confirm("Are you sure you want to delete this task?")) {
+      deleteTask(project.id, taskId);
+    }
+  };
+
+  const handleStatusChange = (taskId: string | number, newStatus: "To Do" | "In Progress" | "Done") => {
+    updateTaskStatus(project.id, taskId, newStatus);
   };
 
   const getStatusStyle = () => {
@@ -90,9 +65,9 @@ export default function ProjectDetailsPage({ params }: ProjectDetailsPageProps) 
     }
   };
 
-  const todoTasks = taskList.filter(t => t.status === "To Do");
-  const inProgressTasks = taskList.filter(t => t.status === "In Progress");
-  const doneTasks = taskList.filter(t => t.status === "Done");
+  const todoTasks = project.tasks.filter(t => t.status === "To Do");
+  const inProgressTasks = project.tasks.filter(t => t.status === "In Progress");
+  const doneTasks = project.tasks.filter(t => t.status === "Done");
 
   return (
     <DashboardLayout>
@@ -123,7 +98,7 @@ export default function ProjectDetailsPage({ params }: ProjectDetailsPageProps) 
             </div>
             
             <div className="sm:w-44 flex-shrink-0">
-              <Button onClick={() => alert("Add Task modal will be added on Day 22!")}>
+              <Button onClick={() => setIsTaskModalOpen(true)}>
                 <span className="flex items-center justify-center gap-1.5 text-sm">
                   <Plus size={16} /> Add Task
                 </span>
@@ -158,6 +133,7 @@ export default function ProjectDetailsPage({ params }: ProjectDetailsPageProps) 
                     key={task.id} 
                     task={task} 
                     onDelete={handleDeleteTask} 
+                    onStatusChange={handleStatusChange}
                   />
                 ))
               )}
@@ -188,6 +164,7 @@ export default function ProjectDetailsPage({ params }: ProjectDetailsPageProps) 
                     key={task.id} 
                     task={task} 
                     onDelete={handleDeleteTask} 
+                    onStatusChange={handleStatusChange}
                   />
                 ))
               )}
@@ -218,6 +195,7 @@ export default function ProjectDetailsPage({ params }: ProjectDetailsPageProps) 
                     key={task.id} 
                     task={task} 
                     onDelete={handleDeleteTask} 
+                    onStatusChange={handleStatusChange}
                   />
                 ))
               )}
@@ -225,6 +203,13 @@ export default function ProjectDetailsPage({ params }: ProjectDetailsPageProps) 
           </div>
         </div>
       </div>
+
+      {/* Task Modal Overlay */}
+      <TaskModal
+        isOpen={isTaskModalOpen}
+        onClose={() => setIsTaskModalOpen(false)}
+        onSubmit={handleCreateTask}
+      />
     </DashboardLayout>
   );
 }

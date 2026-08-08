@@ -66,13 +66,28 @@ export default function TaskCard({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Status Badge */}
-          <div className="flex items-center gap-1 bg-gray-50 dark:bg-slate-800/80 px-2.5 py-1 rounded-lg border border-gray-100 dark:border-slate-800/50">
-            {getStatusIcon()}
-            <span className="font-semibold text-[11px] text-gray-700 dark:text-slate-300 ml-0.5">
-              {task.status}
-            </span>
-          </div>
+          {/* Status Badge & Selector */}
+          {onStatusChange ? (
+            <div className="flex items-center gap-1 bg-gray-50 dark:bg-slate-800/85 px-1.5 py-0.5 rounded-lg border border-gray-200 dark:border-slate-800/60">
+              {getStatusIcon()}
+              <select
+                value={task.status}
+                onChange={(e) => onStatusChange(task.id, e.target.value as any)}
+                className="font-semibold text-[11px] text-gray-700 dark:text-slate-300 bg-transparent border-none outline-none pr-1 py-0.5 cursor-pointer"
+              >
+                <option value="To Do" className="bg-white dark:bg-slate-900">To Do</option>
+                <option value="In Progress" className="bg-white dark:bg-slate-900">In Progress</option>
+                <option value="Done" className="bg-white dark:bg-slate-900">Done</option>
+              </select>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1 bg-gray-50 dark:bg-slate-800/80 px-2.5 py-1 rounded-lg border border-gray-100 dark:border-slate-800/50">
+              {getStatusIcon()}
+              <span className="font-semibold text-[11px] text-gray-700 dark:text-slate-300 ml-0.5">
+                {task.status}
+              </span>
+            </div>
+          )}
 
           {onDelete && (
             <button
