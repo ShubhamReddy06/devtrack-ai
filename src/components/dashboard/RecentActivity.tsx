@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 interface Activity {
-  id: number;
+  id: string | number;
   title: string;
   time: string;
 }
