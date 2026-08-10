@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Pencil, Trash2 } from "lucide-react";
+import ProgressBar from "../ui/ProgressBar";
 
 interface ProjectCardProps {
   id: number | string;
@@ -7,6 +8,7 @@ interface ProjectCardProps {
   description: string;
   tasks: number;
   status: "Planning" | "In Progress" | "Completed";
+  progress?: number;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
 }
@@ -17,6 +19,7 @@ export default function ProjectCard({
   description,
   tasks,
   status,
+  progress = 0,
   onEdit,
   onDelete,
 }: ProjectCardProps) {
@@ -75,19 +78,22 @@ export default function ProjectCard({
 
         <p className="mt-2 text-gray-600 dark:text-slate-300 text-sm line-clamp-2 transition-colors duration-300">{description}</p>
 
-        <p className="mt-4 text-sm text-gray-500 dark:text-slate-400 transition-colors duration-300">
-          <span className="font-semibold text-gray-700 dark:text-slate-200">{tasks}</span> Tasks
-        </p>
-
-        <div className="mt-4">
-          <span
-            className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusStyle()}`}
-          >
+        <div className="mt-4 flex items-center justify-between text-sm text-gray-500 dark:text-slate-400 transition-colors duration-300">
+          <span>
+            <span className="font-semibold text-gray-700 dark:text-slate-200">{tasks}</span> Tasks
+          </span>
+          <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${getStatusStyle()}`}>
             {status}
           </span>
         </div>
 
-        <div className="mt-6 border-t border-gray-100 dark:border-slate-800 pt-4 flex justify-between items-center transition-colors duration-300">
+        {tasks > 0 && (
+          <div className="mt-4">
+            <ProgressBar value={progress} size="sm" />
+          </div>
+        )}
+
+        <div className="mt-5 border-t border-gray-100 dark:border-slate-800 pt-4 flex justify-between items-center transition-colors duration-300">
           <div>
             <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500">
               Created by

@@ -11,14 +11,25 @@ export interface Project {
   tasks: Task[];
 }
 
+export interface Activity {
+  id: string;
+  title: string;
+  time: string;
+  timestamp: number;
+}
+
 interface ProjectContextType {
   projects: Project[];
+  activities: Activity[];
+  loading: boolean;
   addProject: (title: string, description: string, status?: "Planning" | "In Progress" | "Completed") => void;
   editProject: (id: string, updates: Partial<Omit<Project, "id" | "tasks">>) => void;
   deleteProject: (id: string) => void;
   addTask: (projectId: string, task: Omit<Task, "id">) => void;
   deleteTask: (projectId: string, taskId: string | number) => void;
   updateTaskStatus: (projectId: string, taskId: string | number, status: "To Do" | "In Progress" | "Done") => void;
+  logActivity: (title: string) => void;
+  clearActivities: () => void;
 }
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
@@ -58,35 +69,128 @@ const defaultProjects: Project[] = [
   }
 ];
 
+const defaultActivities: Activity[] = [
+  {
+    id: "a1",
+    title: "Created Project DevTrack AI",
+    time: "2 hours ago",
+    timestamp: Date.now() - 2 * 60 * 60 * 1000
+  },
+  {
+    id: "a2",
+    title: "Completed UI Design",
+    time: "Yesterday",
+    timestamp: Date.now() - 24 * 60 * 60 * 1000
+  },
+  {
+    id: "a3",
+    title: "Generated AI Report",
+    time: "2 days ago",
+    timestamp: Date.now() - 2 * 24 * 60 * 60 * 1000
+  }
+];
+
 export function ProjectProvider({ children }: { children: React.ReactNode }) {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load projects from localStorage on mount
+  // Helper to format timestamps into relative time
+  const getRelativeTime = (timestamp: number) => {
+    const diff = Date.now() - timestamp;
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return "Just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days === 1) return "Yesterday";
+    return `${days} days ago`;
+  };
+
+  // Update activities relative time labels periodically
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActivities(prev =>
+        prev.map(act => ({
+          ...act,
+          time: getRelativeTime(act.timestamp)
+        }))
+      );
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Load from localStorage on mount
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("devtrack_projects");
-      if (stored) {
+      const storedProjects = localStorage.getItem("devtrack_projects");
+      const storedActivities = localStorage.getItem("devtrack_activities");
+
+      if (storedProjects) {
         try {
-          setProjects(JSON.parse(stored));
+          setProjects(JSON.parse(storedProjects));
         } catch (e) {
-          console.error("Failed to parse stored projects", e);
           setProjects(defaultProjects);
         }
       } else {
         setProjects(defaultProjects);
         localStorage.setItem("devtrack_projects", JSON.stringify(defaultProjects));
       }
-      setIsLoaded(true);
+
+      if (storedActivities) {
+        try {
+          const parsedActs: Activity[] = JSON.parse(storedActivities);
+          // Refresh the display time strings based on current clock
+          setActivities(
+            parsedActs.map(act => ({
+              ...act,
+              time: getRelativeTime(act.timestamp)
+            }))
+          );
+        } catch (e) {
+          setActivities(defaultActivities);
+        }
+      } else {
+        setActivities(defaultActivities);
+        localStorage.setItem("devtrack_activities", JSON.stringify(defaultActivities));
+      }
+
+      // Simulate a small loading state for UI wow factor spinner
+      setTimeout(() => {
+        setLoading(false);
+        setIsLoaded(true);
+      }, 600);
     }
   }, []);
 
-  // Sync projects to localStorage on change
+  // Sync projects and activities to localStorage on change
   useEffect(() => {
     if (isLoaded && typeof window !== "undefined") {
       localStorage.setItem("devtrack_projects", JSON.stringify(projects));
     }
   }, [projects, isLoaded]);
+
+  useEffect(() => {
+    if (isLoaded && typeof window !== "undefined") {
+      localStorage.setItem("devtrack_activities", JSON.stringify(activities));
+    }
+  }, [activities, isLoaded]);
+
+  const logActivity = (title: string) => {
+    const newActivity: Activity = {
+      id: Math.random().toString(36).substr(2, 9),
+      title,
+      time: "Just now",
+      timestamp: Date.now()
+    };
+    setActivities(prev => [newActivity, ...prev].slice(0, 20)); // Limit to recent 20 activities
+  };
+
+  const clearActivities = () => {
+    setActivities([]);
+  };
 
   const addProject = (title: string, description: string, status: "Planning" | "In Progress" | "Completed" = "Planning") => {
     const newProject: Project = {
@@ -97,16 +201,25 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
       tasks: []
     };
     setProjects(prev => [...prev, newProject]);
+    logActivity(`Created Project "${title}"`);
   };
 
   const editProject = (id: string, updates: Partial<Omit<Project, "id" | "tasks">>) => {
+    const oldProj = projects.find(p => p.id === id);
     setProjects(prev =>
       prev.map(p => (p.id === id ? { ...p, ...updates } : p))
     );
+    if (oldProj) {
+      logActivity(`Updated Project "${updates.title || oldProj.title}" details`);
+    }
   };
 
   const deleteProject = (id: string) => {
+    const oldProj = projects.find(p => p.id === id);
     setProjects(prev => prev.filter(p => p.id !== id));
+    if (oldProj) {
+      logActivity(`Deleted Project "${oldProj.title}"`);
+    }
   };
 
   const addTask = (projectId: string, taskData: Omit<Task, "id">) => {
@@ -117,6 +230,7 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     setProjects(prev =>
       prev.map(p => {
         if (p.id === projectId) {
+          logActivity(`Added task "${taskData.title}" to project "${p.title}"`);
           return {
             ...p,
             tasks: [...p.tasks, newTask]
@@ -128,6 +242,8 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
   };
 
   const deleteTask = (projectId: string, taskId: string | number) => {
+    const proj = projects.find(p => p.id === projectId);
+    const task = proj?.tasks.find(t => t.id === taskId);
     setProjects(prev =>
       prev.map(p => {
         if (p.id === projectId) {
@@ -139,9 +255,14 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
         return p;
       })
     );
+    if (proj && task) {
+      logActivity(`Deleted task "${task.title}" from project "${proj.title}"`);
+    }
   };
 
   const updateTaskStatus = (projectId: string, taskId: string | number, status: "To Do" | "In Progress" | "Done") => {
+    const proj = projects.find(p => p.id === projectId);
+    const task = proj?.tasks.find(t => t.id === taskId);
     setProjects(prev =>
       prev.map(p => {
         if (p.id === projectId) {
@@ -153,18 +274,25 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
         return p;
       })
     );
+    if (proj && task) {
+      logActivity(`Moved task "${task.title}" to "${status}" inside project "${proj.title}"`);
+    }
   };
 
   return (
     <ProjectContext.Provider
       value={{
         projects,
+        activities,
+        loading,
         addProject,
         editProject,
         deleteProject,
         addTask,
         deleteTask,
-        updateTaskStatus
+        updateTaskStatus,
+        logActivity,
+        clearActivities
       }}
     >
       {children}

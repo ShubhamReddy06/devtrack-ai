@@ -80,18 +80,25 @@ function ProjectsContent() {
         </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-          {filteredProjects.map((project) => (
-            <ProjectCard
-              key={project.id}
-              id={project.id}
-              title={project.title}
-              description={project.description}
-              tasks={project.tasks.length}
-              status={project.status}
-              onEdit={handleEditClick}
-              onDelete={handleDeleteClick}
-            />
-          ))}
+          {filteredProjects.map((project) => {
+            const totalTasks = project.tasks.length;
+            const completedTasks = project.tasks.filter(t => t.status === "Done").length;
+            const progressVal = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+            return (
+              <ProjectCard
+                key={project.id}
+                id={project.id}
+                title={project.title}
+                description={project.description}
+                tasks={totalTasks}
+                status={project.status}
+                progress={progressVal}
+                onEdit={handleEditClick}
+                onDelete={handleDeleteClick}
+              />
+            );
+          })}
         </div>
       )}
 
