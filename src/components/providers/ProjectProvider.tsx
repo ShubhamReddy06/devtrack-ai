@@ -10,6 +10,7 @@ export interface Project {
   description: string;
   status: "Planning" | "In Progress" | "Completed";
   tasks: Task[];
+  aiReport?: string;
 }
 
 export interface Activity {
@@ -29,6 +30,7 @@ interface ProjectContextType {
   addTask: (projectId: string, task: Omit<Task, "id">) => Promise<void>;
   deleteTask: (projectId: string, taskId: string | number) => Promise<void>;
   updateTaskStatus: (projectId: string, taskId: string | number, status: "To Do" | "In Progress" | "Done") => Promise<void>;
+  generateAiReport: (projectId: string) => Promise<string>;
   logActivity: (title: string) => void;
   clearActivities: () => void;
 }
@@ -309,6 +311,22 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const generateAiReport = async (projectId: string): Promise<string> => {
+    try {
+      const res = await axios.post(`${API_BASE}/projects/${projectId}/ai-report`);
+      const { aiReport } = res.data;
+      
+      setProjects(prev =>
+        prev.map(p => (p.id === projectId ? { ...p, aiReport } : p))
+      );
+      logActivity("Generated AI sprint report");
+      return aiReport;
+    } catch (e) {
+      console.error("Failed to generate AI report:", e);
+      return "";
+    }
+  };
+
   return (
     <ProjectContext.Provider
       value={{
@@ -321,6 +339,7 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
         addTask,
         deleteTask,
         updateTaskStatus,
+        generateAiReport,
         logActivity,
         clearActivities
       }}
