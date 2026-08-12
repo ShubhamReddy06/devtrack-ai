@@ -2,11 +2,12 @@
 
 import React, { use, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Plus, CheckCircle, Clock, ListTodo } from "lucide-react";
+import { ArrowLeft, Plus, CheckCircle, Clock, ListTodo, Sparkles } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import Button from "@/components/ui/Button";
 import TaskCard from "@/components/projects/TaskCard";
 import TaskModal from "@/components/projects/TaskModal";
+import AiReportCard from "@/components/projects/AiReportCard";
 import { useProjects } from "@/components/providers/ProjectProvider";
 
 interface ProjectDetailsPageProps {
@@ -15,8 +16,9 @@ interface ProjectDetailsPageProps {
 
 export default function ProjectDetailsPage({ params }: ProjectDetailsPageProps) {
   const { id } = use(params);
-  const { projects, addTask, deleteTask, updateTaskStatus } = useProjects();
+  const { projects, addTask, deleteTask, updateTaskStatus, generateAiReport } = useProjects();
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [generatingReport, setGeneratingReport] = useState(false);
 
   const project = projects.find(p => p.id === id);
 
@@ -54,6 +56,12 @@ export default function ProjectDetailsPage({ params }: ProjectDetailsPageProps) 
     updateTaskStatus(project.id, taskId, newStatus);
   };
 
+  const handleAiReport = async () => {
+    setGeneratingReport(true);
+    await generateAiReport(project.id);
+    setGeneratingReport(false);
+  };
+
   const getStatusStyle = () => {
     switch (project.status) {
       case "Completed":
@@ -82,8 +90,8 @@ export default function ProjectDetailsPage({ params }: ProjectDetailsPageProps) 
 
         {/* Project Header Info Card */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-6 mb-8 shadow-sm transition-colors duration-300">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="space-y-2">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+            <div className="space-y-2 flex-1">
               <div className="flex items-center gap-3 flex-wrap">
                 <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
                   {project.title}
@@ -97,15 +105,45 @@ export default function ProjectDetailsPage({ params }: ProjectDetailsPageProps) 
               </p>
             </div>
             
-            <div className="sm:w-44 flex-shrink-0">
-              <Button onClick={() => setIsTaskModalOpen(true)}>
-                <span className="flex items-center justify-center gap-1.5 text-sm">
-                  <Plus size={16} /> Add Task
-                </span>
-              </Button>
+            <div className="flex flex-col sm:flex-row gap-3 lg:w-96 flex-shrink-0">
+              <button
+                onClick={handleAiReport}
+                disabled={generatingReport}
+                className="flex-1 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm px-5 py-3 shadow transition-all active:scale-95 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <Sparkles size={16} className={generatingReport ? "animate-spin" : ""} />
+                {generatingReport ? "Generating AI Summary..." : "AI Sprint Report"}
+              </button>
+
+              <div className="flex-1">
+                <Button onClick={() => setIsTaskModalOpen(true)}>
+                  <span className="flex items-center justify-center gap-1.5 text-sm">
+                    <Plus size={16} /> Add Task
+                  </span>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
+
+        {/* AI Report Card Render */}
+        {generatingReport && (
+          <div className="rounded-2xl border border-dashed border-blue-200 dark:border-indigo-950 p-8 text-center animate-pulse bg-blue-50/10 dark:bg-slate-900/40 mb-8">
+            <div className="flex flex-col items-center gap-3">
+              <Sparkles className="animate-spin text-indigo-500" size={32} />
+              <p className="text-sm font-semibold text-gray-500 dark:text-slate-400">
+                AI Agent is analyzing task backlog and calculating velocity bottlenecks...
+              </p>
+              <div className="w-48 h-2 bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden mt-1">
+                <div className="h-full bg-indigo-500 animate-infinite-shimmer w-1/2 rounded-full" />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {!generatingReport && project.aiReport && (
+          <AiReportCard reportText={project.aiReport} />
+        )}
 
         {/* Task Board Columns */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

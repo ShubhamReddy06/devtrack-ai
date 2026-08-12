@@ -16,6 +16,10 @@ const ProjectSchema = new mongoose.Schema({
     enum: ["Planning", "In Progress", "Completed"],
     default: "Planning",
   },
+  aiReport: {
+    type: String,
+    default: "",
+  },
   createdAt: {
     type: Date,
     default: Date.now,
